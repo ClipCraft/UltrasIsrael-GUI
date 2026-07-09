@@ -1,73 +1,92 @@
--- Ultras Israel Modern Commands GUI
+-- Ultras Israel - Clean Modern GUI
+local TS = game:GetService("TweenService")
 local player = game.Players.LocalPlayer
+
 local gui = Instance.new("ScreenGui")
-gui.Name = "UltrasCapoStyle"
+gui.Name = "UltrasClean"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0, 850, 0, 620)
-main.Position = UDim2.new(0.5, -425, 0.5, -310)
-main.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+main.Size = UDim2.new(0, 900, 0, 580)
+main.Position = UDim2.new(0.5, -450, 0.5, -290)
+main.BackgroundColor3 = Color3.fromRGB(12, 12, 22)
 main.BorderSizePixel = 0
 main.Active = true
 main.Draggable = true
 main.Parent = gui
 
--- Title
+-- Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1,0,0,65)
+titleBar.BackgroundColor3 = Color3.fromRGB(0, 60, 160)
+titleBar.Parent = main
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 70)
-title.BackgroundColor3 = Color3.fromRGB(0, 70, 180)
-title.Text = "🔥 ULTRAS ISRAEL CAPO"
+title.Size = UDim2.new(1,0,1,0)
+title.BackgroundTransparency = 1
+title.Text = "ULTRAS ISRAEL"
 title.TextColor3 = Color3.new(1,1,1)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBlack
-title.Parent = main
+title.Parent = titleBar
 
-local close = Instance.new("TextButton")
-close.Size = UDim2.new(0, 40, 0, 40)
-close.Position = UDim2.new(1, -50, 0, 15)
-close.BackgroundTransparency = 1
-close.Text = "✕"
-close.TextColor3 = Color3.fromRGB(255, 90, 90)
-close.TextScaled = true
-close.Parent = main
-close.MouseButton1Click:Connect(function() gui:Destroy() end)
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0,40,0,40)
+closeBtn.Position = UDim2.new(1,-50,0,12)
+closeBtn.BackgroundTransparency = 1
+closeBtn.Text = "✕"
+closeBtn.TextColor3 = Color3.fromRGB(255,100,100)
+closeBtn.TextScaled = true
+closeBtn.Parent = titleBar
+closeBtn.MouseButton1Click:Connect(function() gui:Destroy() end)
 
-local function send(cmd)
-    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(cmd, "All")
+local function sendCommand(cmd)
+    local methods = {
+        function() game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(cmd, "All") end,
+        function() game.Players:Chat(cmd) end,
+        function() player:Chat(cmd) end,
+    }
+    
+    for _, method in ipairs(methods) do
+        pcall(method)
+    end
 end
 
-local function createCard(text, command, x, y, color)
+local function createCard(name, cmd, posX, posY, color)
     local card = Instance.new("TextButton")
-    card.Size = UDim2.new(0, 190, 0, 85)
-    card.Position = UDim2.new(0, x, 0, y)
-    card.BackgroundColor3 = color or Color3.fromRGB(30, 30, 45)
-    card.Text = text
+    card.Size = UDim2.new(0, 200, 0, 90)
+    card.Position = UDim2.new(0, posX, 0, posY)
+    card.BackgroundColor3 = color or Color3.fromRGB(25, 25, 40)
+    card.Text = name
     card.TextColor3 = Color3.new(1,1,1)
     card.TextScaled = true
     card.Font = Enum.Font.GothamSemibold
     card.Parent = main
 
+    card.MouseEnter:Connect(function()
+        TS:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 100, 200)}):Play()
+    end)
+    card.MouseLeave:Connect(function()
+        TS:Create(card, TweenInfo.new(0.2), {BackgroundColor3 = color or Color3.fromRGB(25, 25, 40)}):Play()
+    end)
+
     card.MouseButton1Click:Connect(function()
-        send(command)
+        sendCommand(cmd)
     end)
 end
 
--- Setup Cards
-createCard("5 פתיחה", ":unteam me | :massbring %gr 5 | :rtools %gr | :copychar %gr me", 50, 100, Color3.fromRGB(40, 100, 60))
-createCard("ULT פתיחה", ":unteam me | :massbring %GR 7 | :team me ult | :copychar %gr me", 270, 100, Color3.fromRGB(60, 60, 140))
-createCard("פתיחה מלאה", ":unteam me | :massbring %gr 7 | :rtools %gr | :copychar %gr me | :give me me", 490, 100, Color3.fromRGB(30, 80, 160))
+-- Cards
+createCard("Setup 7", ":unteam me | :massbring %gr 7 | :rtools %gr | :copychar %gr me | :give me me", 50, 90, Color3.fromRGB(40, 80, 140))
+createCard("Setup ULT", ":unteam me | :massbring %GR 7 | :team me ult | :copychar %gr me", 270, 90, Color3.fromRGB(80, 60, 160))
+createCard("Setup 5", ":unteam me | :massbring %gr 5 | :rtools %gr | :copychar %gr me", 490, 90)
 
--- Flares
-createCard("Green F", ":give %gr GREEN F", 50, 220, Color3.fromRGB(0, 140, 60))
-createCard("Green B", ":give %gr green b", 270, 220, Color3.fromRGB(0, 140, 60))
-createCard("White F", ":give %gr white f", 490, 220, Color3.fromRGB(200, 200, 200))
-createCard("Red F", ":give %gr red f", 710, 220, Color3.fromRGB(180, 40, 40))
+createCard("Green F", ":give %gr GREEN F", 50, 210, Color3.fromRGB(0, 160, 80))
+createCard("Green B", ":give %gr green b", 270, 210, Color3.fromRGB(0, 160, 80))
+createCard("White F", ":give %gr white f", 490, 210, Color3.fromRGB(220, 220, 220))
+createCard("Red F", ":give %gr red f", 710, 210, Color3.fromRGB(200, 50, 50))
 
-createCard("Double Green", ":give %gr double green", 50, 330, Color3.fromRGB(0, 160, 80))
-createCard("Green + White B", ":give %gr GREEN B | :give %gr white b", 270, 330)
-createCard("White T", ":give %gr white t", 490, 330)
-createCard("Green Apes", ":GIVE %GR GREEN APES", 710, 330, Color3.fromRGB(0, 180, 100))
+createCard("Double Green", ":give %gr double green", 50, 330, Color3.fromRGB(0, 180, 100))
+createCard("Green Apes", ":GIVE %GR GREEN APES", 270, 330, Color3.fromRGB(0, 200, 120))
 
-print("✅ Ultras Capo Style GUI Loaded!")
+print("Ultras Clean GUI Loaded - נסה ללחוץ")
